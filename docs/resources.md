@@ -7,15 +7,17 @@ against those identities.
 The variant VCF and the GENCODE FASTA are **different GRCh38 patches**.
 The pipeline records each producer string separately.
 
-| Role | File / endpoint | Version | Assembly |
-|------|-----------------|---------|----------|
-| Variant VCF | NCBI dbSNP `common_all_20180418.vcf.gz` | b151, 20180418 | GRCh38.p7 |
-| BLAST subject | GENCODE `gencode.v45.transcripts.fa.gz` | Release 45 = Ensembl 111, 2024-01, CHR | GRCh38.p14 |
-| 3′UTR fetch | `https://e111.rest.ensembl.org` | Ensembl 111 | GRCh38.p14 |
-| Off-target | NCBI BLAST+ `blastn -task blastn-short` | local `blastn -version` | — |
-| Binding energy | ViennaRNA `RNAup` | local `RNAup --version` | — |
-| Example LETM1 | `examples/LETM1.fasta` | ENST00000302787 (v45 LETM1-201 `.3`) | chrom=4 BED |
-| Example NSD2 | `examples/NSD2.FASTA` | ENST00000508803 (v45 NSD2-218 `.6`) | chrom=4 BED |
+
+| Role           | File / endpoint                         | Version                                | Assembly    |
+| -------------- | --------------------------------------- | -------------------------------------- | ----------- |
+| Variant VCF    | NCBI dbSNP `common_all_20180418.vcf.gz` | b151, 20180418                         | GRCh38.p7   |
+| BLAST subject  | GENCODE `gencode.v45.transcripts.fa.gz` | Release 45 = Ensembl 111, 2024-01, CHR | GRCh38.p14  |
+| 3′UTR fetch    | `https://e111.rest.ensembl.org`         | Ensembl 111                            | GRCh38.p14  |
+| Off-target     | NCBI BLAST+ `blastn -task blastn-short` | local `blastn -version`                | —           |
+| Binding energy | ViennaRNA `RNAup`                       | local `RNAup --version`                | —           |
+| Example LETM1  | `examples/LETM1.fasta`                  | ENST00000302787 (v45 LETM1-201 `.3`)   | chrom=4 BED |
+| Example NSD2   | `examples/NSD2.FASTA`                   | ENST00000508803 (v45 NSD2-218 `.6`)    | chrom=4 BED |
+
 
 `run fasta` is the durable path. `run gene` talks only to the Ensembl 111
 archive. The bundled FASTAs match that archive’s canonical 3′UTRs for
@@ -49,9 +51,11 @@ uv run bsst db init \
   --transcriptome-assembly GRCh38.p14
 ```
 
+
+
 ## Variant VCF (NCBI dbSNP b151, GRCh38.p7)
 
-https://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p7/VCF/common_all_20180418.vcf.gz
+[https://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p7/VCF/common_all_20180418.vcf.gz](https://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p7/VCF/common_all_20180418.vcf.gz)
 
 Local: `data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz` (~1.5 GB, not
 in Git). Chromosomes are unprefixed (`1`, `4`, `X`). NCBI `COMMON=1`: at
@@ -63,13 +67,15 @@ and `TOPMED`. There is no standard `AF=`.
 gzip -dc data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz | head -n 20
 ```
 
-| Header | Must be |
-|--------|---------|
-| `##source=dbSNP` | NCBI dbSNP |
-| `##dbSNP_BUILD_ID=151` | build 151 |
-| `##reference=GRCh38.p7` | patch 7 |
-| `##fileDate=20180418` | this extract |
-| `#CHROM` data | `1`, not `chr1` |
+
+| Header                  | Must be         |
+| ----------------------- | --------------- |
+| `##source=dbSNP`        | NCBI dbSNP      |
+| `##dbSNP_BUILD_ID=151`  | build 151       |
+| `##reference=GRCh38.p7` | patch 7         |
+| `##fileDate=20180418`   | this extract    |
+| `#CHROM` data           | `1`, not `chr1` |
+
 
 Example FASTA headers use `chrom=4` and 0-based BED; the VCF uses `4` and
 1-based `POS` (the reader subtracts 1). Do not mix GRCh37/hg19 or
@@ -77,9 +83,9 @@ later-patch / alt-contig coordinates.
 
 ## BLAST subject (GENCODE 45, GRCh38.p14, CHR)
 
-https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz
+[https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz)
 
-Release notes: https://www.gencodegenes.org/human/release_45.html
+Release notes: [https://www.gencodegenes.org/human/release_45.html](https://www.gencodegenes.org/human/release_45.html)
 
 Local FASTA: `data/gencode.v45.transcripts.fa` (~454 MB). BLAST prefix:
 `data/gencode_v45_transcripts_db`. Comprehensive CHR transcripts including
@@ -91,14 +97,16 @@ grep -c '^>' data/gencode.v45.transcripts.fa
 head -n 1 data/gencode.v45.transcripts.fa
 ```
 
-| Check | Requirement |
-|-------|-------------|
-| Record count | **252930** |
-| First header | `ENST00000456328.2` / `DDX11L2-202` / `lncRNA` |
-| Last (MT) header | `MT-TP-201` / `Mt_tRNA` |
-| `protein_coding` | 89110 |
-| `nonsense_mediated_decay` | 21427 |
-| `lncRNA` | 57722 |
+
+| Check                     | Requirement                                    |
+| ------------------------- | ---------------------------------------------- |
+| Record count              | **252930**                                     |
+| First header              | `ENST00000456328.2` / `DDX11L2-202` / `lncRNA` |
+| Last (MT) header          | `MT-TP-201` / `Mt_tRNA`                        |
+| `protein_coding`          | 89110                                          |
+| `nonsense_mediated_decay` | 21427                                          |
+| `lncRNA`                  | 57722                                          |
+
 
 GENCODE 47+ has ~385k transcripts and may still start with DDX11L2. Do not
 identify the release from the first header alone.

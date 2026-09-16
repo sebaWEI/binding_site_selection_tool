@@ -5,6 +5,7 @@ for **iGEM PekingHSC 2026** (HEPHA-RNA). After a target gene is chosen, it
 scores antisense binding domains (BDs) on that transcript’s 3′UTR for Hepha
 element development.
 
+- Model_repository: https://github.com/sebaWEI/PekingHSC-2026-Model
 - Team: https://teams.igem.org/6371
 - Wiki: https://2026.igem.wiki/pekinghsc/
 - Model: https://2026.igem.wiki/pekinghsc/model
