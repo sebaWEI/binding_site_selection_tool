@@ -8,8 +8,8 @@ element development.
 - Model_repository: https://github.com/sebaWEI/PekingHSC-2026-Model
 - Team: https://teams.igem.org/6371
 - Wiki: https://2026.igem.wiki/pekinghsc/
-- Model: https://2026.igem.wiki/pekinghsc/model
-- Tutorial: https://2026.igem.wiki/pekinghsc/documents
+- Wiki model page: https://2026.igem.wiki/pekinghsc/model
+- Wiki tutorial page: https://2026.igem.wiki/pekinghsc/documents
 
 Each run writes `runs/<timestamp>_<id>/` with the input, parameters, logs,
 intermediate tables, and ranked candidates.
