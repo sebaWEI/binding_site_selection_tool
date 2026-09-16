@@ -14,6 +14,11 @@ def test_pinned_resource_identifiers() -> None:
     assert GENCODE_V45_TRANSCRIPTS["ensembl_version"] == "111"
     assert GENCODE_V45_TRANSCRIPTS["assembly"] == "GRCh38.p14"
     assert GENCODE_V45_TRANSCRIPTS["url"].endswith("release_45/gencode.v45.transcripts.fa.gz")
+    assert len(DBSNP_B151_GRCH38P7_COMMON_ALL["sha256"]) == 64
+    assert DBSNP_B151_GRCH38P7_COMMON_ALL["md5"] == "a274dcecff9cfe6084eaef848080ad8d"
+    assert GENCODE_V45_TRANSCRIPTS["archive_md5"] == "415f81cc2f111fd6dbff5723de0cfa0b"
+    assert len(GENCODE_V45_TRANSCRIPTS["archive_sha256"]) == 64
+    assert len(GENCODE_V45_TRANSCRIPTS["fasta_sha256"]) == 64
     assert ENSEMBL_REST["pinned"] is True
     assert ENSEMBL_REST["base_url"] == "https://e111.rest.ensembl.org"
     assert ENSEMBL_REST["ensembl_version"] == "111"

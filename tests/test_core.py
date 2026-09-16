@@ -123,3 +123,15 @@ def test_stream_download_and_checksum(tmp_path: Path) -> None:
     assert download_file(
         source.as_uri(), destination, expected_sha256=checksum
     ).read_bytes() == source.read_bytes()
+
+
+def test_download_rejects_checksum_mismatch(tmp_path: Path) -> None:
+    source = tmp_path / "source.vcf"
+    source.write_bytes(b"##fileformat=VCFv4.2\n")
+    destination = tmp_path / "out.vcf"
+    try:
+        download_file(source.as_uri(), destination, expected_sha256="0" * 64)
+    except ValueError as exc:
+        assert "checksum mismatch" in str(exc)
+    else:
+        raise AssertionError("expected checksum mismatch")

@@ -61,6 +61,9 @@ def download_file(
                 raise ValueError(f"checksum mismatch for downloaded file: {url}")
             partial.replace(destination)
             return destination
+        except ValueError:
+            partial.unlink(missing_ok=True)
+            raise
         except Exception as exc:
             last_error = exc
             partial.unlink(missing_ok=True)
@@ -103,16 +106,13 @@ def initialize(
         variant_release = variant_release or spec["variant_release"]
         destination = bundled_dbsnp_vcf()
         if variant_vcf is None:
-            if destination.is_file() and not force:
-                variant_vcf = destination
-            else:
-                variant_vcf = download_file(
-                    variant_url or spec["url"],
-                    destination,
-                    expected_sha256=variant_sha256,
-                    retries=retries,
-                    force=force,
-                )
+            variant_vcf = download_file(
+                variant_url or spec["url"],
+                destination,
+                expected_sha256=variant_sha256 or spec["sha256"],
+                retries=retries,
+                force=force,
+            )
         variant_url = None
 
     if variant_url:
@@ -135,11 +135,13 @@ def initialize(
         transcriptome_release = transcriptome_release or gencode["transcriptome_release"]
         transcriptome_assembly = transcriptome_assembly or gencode["assembly"]
         fasta = bundled_gencode_fasta()
+        archive_digest = transcriptome_sha256 or gencode["archive_sha256"]
+        fasta_digest = None if transcriptome_sha256 else gencode["fasta_sha256"]
         if transcriptome_url is None and (not fasta.is_file() or force):
             archive = download_file(
                 gencode["url"],
                 data_dir() / gencode["archive_filename"],
-                expected_sha256=transcriptome_sha256,
+                expected_sha256=archive_digest,
                 retries=retries,
                 force=force,
             )
@@ -147,8 +149,8 @@ def initialize(
                 fasta.parent.mkdir(parents=True, exist_ok=True)
                 with gzip.open(archive, "rb") as source, fasta.open("wb") as output:
                     shutil.copyfileobj(source, output, length=1024 * 1024)
-        elif transcriptome_url is None and fasta.is_file() and transcriptome_sha256:
-            if _sha256(fasta) != transcriptome_sha256.lower():
+        if transcriptome_url is None and fasta.is_file() and fasta_digest:
+            if _sha256(fasta) != fasta_digest.lower():
                 raise ValueError(f"checksum mismatch for existing file: {fasta}")
         if blast_db is None:
             prefix = bundled_blast_db_prefix()

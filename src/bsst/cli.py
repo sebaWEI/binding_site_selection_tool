@@ -50,8 +50,13 @@ def db_init(
     transcriptome_url: str | None = typer.Option(
         None, help="Download FASTA(.gz) and build a BLAST database."
     ),
-    variant_sha256: str | None = typer.Option(None, help="Expected VCF SHA-256."),
-    transcriptome_sha256: str | None = typer.Option(None, help="Expected FASTA SHA-256."),
+    variant_sha256: str | None = typer.Option(
+        None, help="Expected VCF SHA-256. Defaults to the pinned digest for --dbsnp-common-all."
+    ),
+    transcriptome_sha256: str | None = typer.Option(
+        None,
+        help="Expected downloaded FASTA(.gz) SHA-256. Defaults to the pinned archive digest for --gencode-v45-transcripts.",
+    ),
     assembly: str | None = typer.Option(None, help="Reference assembly, e.g. GRCh38."),
     variant_source: str | None = typer.Option(None, help="Variant resource name."),
     variant_release: str | None = typer.Option(None, help="Variant resource release."),

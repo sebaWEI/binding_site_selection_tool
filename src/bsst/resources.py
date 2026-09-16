@@ -38,6 +38,14 @@ DBSNP_B151_GRCH38P7_COMMON_ALL: dict[str, Any] = {
         "##reference=GRCh38.p7",
         "##fileDate=20180418",
     ),
+    # SHA-256 of common_all_20180418.vcf.gz. NCBI publishes MD5 only;
+    # that digest matches this file: a274dcecff9cfe6084eaef848080ad8d
+    "sha256": "a4b5ca65be831ef071891c8f6eb4925a83a1a9ecaa84a2585b0b71c7b217d564",
+    "md5": "a274dcecff9cfe6084eaef848080ad8d",
+    "md5_url": (
+        "https://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p7/"
+        "VCF/common_all_20180418.vcf.gz.md5"
+    ),
 }
 
 # ---------------------------------------------------------------------------
@@ -83,6 +91,20 @@ GENCODE_V45_TRANSCRIPTS: dict[str, Any] = {
     ),
     "last_header": (
         "ENST00000387461.2|ENSG00000210196.2|-|-|MT-TP-201|MT-TP|68|Mt_tRNA|"
+    ),
+    # SHA-256 of gencode.v45.transcripts.fa.gz. GENCODE MD5SUMS:
+    # 415f81cc2f111fd6dbff5723de0cfa0b  gencode.v45.transcripts.fa.gz
+    "archive_sha256": (
+        "43bc5f0eab276b3a765a42186d92a4318138a68fd2f60ee9fd2dd1104d02bde2"
+    ),
+    "archive_md5": "415f81cc2f111fd6dbff5723de0cfa0b",
+    "md5sums_url": (
+        "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/"
+        "release_45/MD5SUMS"
+    ),
+    # SHA-256 of the uncompressed FASTA (gzip -dc of the archive).
+    "fasta_sha256": (
+        "4263185345dbc8da8f3092b314671b6d0b0bea79ba7fe4b58794f609dd78c998"
     ),
 }
 

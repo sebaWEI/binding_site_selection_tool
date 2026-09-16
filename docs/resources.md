@@ -1,32 +1,41 @@
 # Scientific resources
 
-Pinned names live in `src/bsst/resources.py`. `bsst resources` prints this
-catalog. `bsst check_requirements` checks local files and binaries against
-those identities (VCF headers, GENCODE first FASTA header, BLAST sequence
-count). The VCF and the GENCODE FASTA are different GRCh38 patches; the
-pipeline records each producer string separately.
+Pinned names live in `src/bsst/resources.py`. Print the same catalog with
+`bsst resources`. `bsst check_requirements` checks local files and binaries
+against those identities.
 
-| Role | Producer name | Version / extract | Assembly | Pinned? |
-|------|---------------|-------------------|----------|---------|
-| Variant VCF | NCBI dbSNP `common_all_20180418.vcf.gz` | b151, 20180418 | GRCh38.p7 | Yes, local file |
-| BLAST subject | GENCODE `gencode.v45.transcripts.fa.gz` | Release 45 = Ensembl 111, 2024-01, CHR | GRCh38.p14 | Yes, local file |
-| Canonical 3′UTR fetch | Ensembl REST `https://e111.rest.ensembl.org` | Release 111 | GRCh38.p14 | Yes, versioned archive |
-| Off-target search | NCBI BLAST+ `blastn -task blastn-short` | Local `blastn -version` | — | Local binary |
-| Interaction energy | ViennaRNA `RNAup` | Local `RNAup --version` | — | Local binary |
-| Example LETM1 | `examples/LETM1.fasta` | ENST00000302787; v45 LETM1-201 `.3` | chrom=4 BED | In repo |
-| Example NSD2 | `examples/NSD2.FASTA` | ENST00000508803; v45 NSD2-218 `.6` | chrom=4 BED | In repo |
+The variant VCF and the GENCODE FASTA are **different GRCh38 patches**.
+The pipeline records each producer string separately.
 
-`run fasta` is the durable analysis path. `run gene` is a convenience client
-of the Ensembl 111 archive only. Example accessions match Ensembl 111
-`lookup/symbol` canonical 3′UTRs and `sequence/region` for those BED
-intervals; minus-strand LETM1 windows equal the reverse complement of the
-plus-strand genome slice.
+| Role | File / endpoint | Version | Assembly |
+|------|-----------------|---------|----------|
+| Variant VCF | NCBI dbSNP `common_all_20180418.vcf.gz` | b151, 20180418 | GRCh38.p7 |
+| BLAST subject | GENCODE `gencode.v45.transcripts.fa.gz` | Release 45 = Ensembl 111, 2024-01, CHR | GRCh38.p14 |
+| 3′UTR fetch | `https://e111.rest.ensembl.org` | Ensembl 111 | GRCh38.p14 |
+| Off-target | NCBI BLAST+ `blastn -task blastn-short` | local `blastn -version` | — |
+| Binding energy | ViennaRNA `RNAup` | local `RNAup --version` | — |
+| Example LETM1 | `examples/LETM1.fasta` | ENST00000302787 (v45 LETM1-201 `.3`) | chrom=4 BED |
+| Example NSD2 | `examples/NSD2.FASTA` | ENST00000508803 (v45 NSD2-218 `.6`) | chrom=4 BED |
+
+`run fasta` is the durable path. `run gene` talks only to the Ensembl 111
+archive. The bundled FASTAs match that archive’s canonical 3′UTRs for
+those BED intervals; minus-strand LETM1 windows equal the reverse
+complement of the plus-strand genome slice.
+
+## Checksums
+
+`bsst db init --dbsnp-common-all --gencode-v45-transcripts` checks SHA-256
+of the downloaded bytes (and the uncompressed GENCODE FASTA) against
+`src/bsst/resources.py`. Those digests match the producer MD5 files (NCBI
+`*.vcf.gz.md5`, GENCODE `MD5SUMS`). A mismatch aborts; `--force`
+re-downloads. Custom `--variant-url` / `--transcriptome-url` need an
+explicit `--*-sha256` if you want a checksum.
 
 ```bash
 uv run bsst db init --dbsnp-common-all --gencode-v45-transcripts
 ```
 
-Already-downloaded copies:
+Already on disk:
 
 ```bash
 uv run bsst db init \
@@ -44,29 +53,27 @@ uv run bsst db init \
 
 https://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p7/VCF/common_all_20180418.vcf.gz
 
-Local name: `data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz` (~1.5 GB, not
-in Git). Chromosome names are unprefixed (`1`, `4`, `X`). NCBI `COMMON=1`
-means at least one 1000 Genomes population has a minor-allele frequency ≥ 1%,
-with ≥ 2 founders contributing that allele. Frequencies are in `CAF` (first
-value is the reference allele) and `TOPMED`. There is no standard `AF=`.
-
-Confirm from the file, not the name:
+Local: `data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz` (~1.5 GB, not
+in Git). Chromosomes are unprefixed (`1`, `4`, `X`). NCBI `COMMON=1`: at
+least one 1000 Genomes population has MAF ≥ 1%, with ≥ 2 founders
+contributing that allele. Frequency fields: `CAF` (first value = reference)
+and `TOPMED`. There is no standard `AF=`.
 
 ```bash
 gzip -dc data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz | head -n 20
 ```
 
-| Header field | Requirement |
-|--------------|-------------|
-| `##source=dbSNP` | Producer is NCBI dbSNP |
-| `##dbSNP_BUILD_ID=151` | Build 151 |
-| `##reference=GRCh38.p7` | Reference GRCh38 patch 7 |
-| `##fileDate=20180418` | Extract date |
-| Data `#CHROM` is `1`, not `chr1` | Matches Ensembl `seq_region_name` |
+| Header | Must be |
+|--------|---------|
+| `##source=dbSNP` | NCBI dbSNP |
+| `##dbSNP_BUILD_ID=151` | build 151 |
+| `##reference=GRCh38.p7` | patch 7 |
+| `##fileDate=20180418` | this extract |
+| `#CHROM` data | `1`, not `chr1` |
 
 Example FASTA headers use `chrom=4` and 0-based BED; the VCF uses `4` and
-1-based `POS` (the reader subtracts 1). Do not filter with a GRCh37/hg19 VCF
-or later-patch / alt-contig coordinates.
+1-based `POS` (the reader subtracts 1). Do not mix GRCh37/hg19 or
+later-patch / alt-contig coordinates.
 
 ## BLAST subject (GENCODE 45, GRCh38.p14, CHR)
 
@@ -75,10 +82,9 @@ https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45
 Release notes: https://www.gencodegenes.org/human/release_45.html
 
 Local FASTA: `data/gencode.v45.transcripts.fa` (~454 MB). BLAST prefix:
-`data/gencode_v45_transcripts_db`. This is the comprehensive CHR transcript
-set (including MT), not `pc_transcripts`. Queries are DNA (`T`, never `U`).
-
-Do not pass `-parse_seqids` to `makeblastdb`: GENCODE headers use `|`.
+`data/gencode_v45_transcripts_db`. Comprehensive CHR transcripts including
+MT, **not** `pc_transcripts`. Queries are DNA (`T`, never `U`). Do not
+pass `-parse_seqids` to `makeblastdb`.
 
 ```bash
 grep -c '^>' data/gencode.v45.transcripts.fa
@@ -97,7 +103,6 @@ head -n 1 data/gencode.v45.transcripts.fa
 GENCODE 47+ has ~385k transcripts and may still start with DDX11L2. Do not
 identify the release from the first header alone.
 
-BLAST compares transcript sequence, not genomic intervals, so the p7 VCF vs
-p14 transcriptome patch difference does not shift VCF-style coordinates. The
-off-target subject is the January 2024 GENCODE 45 comprehensive set, not live
-Ensembl.
+BLAST compares **transcript sequence**, not genomic intervals, so p7 vs p14
+does not shift VCF-style coordinates. The off-target subject is the
+January 2024 GENCODE 45 set, not live Ensembl.
