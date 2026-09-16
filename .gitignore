@@ -67,3 +67,5 @@ human_transcriptome_db.*
 !examples/legacy/*.tsv
 !examples/legacy/*.md
 !data/README.md
+
+examples/legacy
