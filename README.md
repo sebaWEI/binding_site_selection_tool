@@ -1,4 +1,4 @@
-# bsst
+# Binding Site Selection Tool
 
 `bsst` (Binding Site Selection Tool) is the dry-lab binding-domain ranker
 for **iGEM PekingHSC 2026** (HEPHA-RNA). After a target gene is chosen, it
