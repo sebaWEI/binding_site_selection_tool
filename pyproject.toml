@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bsst"
+version = "0.3.0"
+description = "Binding Site Selection Tool for Hepha antisense domains on 3'UTR targets"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "biopython>=1.83",
+  "pandas>=2.2",
+  "requests>=2.31",
+  "rich>=13.7",
+  "typer>=0.12",
+]
+
+[project.scripts]
+bsst = "bsst.cli:app"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bsst"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/examples",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml",
+  "/uv.lock",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: native RNAup or network archive checks",
+]
