@@ -112,7 +112,7 @@ ENSEMBL_REST: dict[str, Any] = {
     },
     "note": (
         "Convenience fetcher pinned to the Ensembl 111 REST archive so it "
-        "matches GENCODE 45. Prefer select fasta for day-to-day analysis. "
+        "matches GENCODE 45. Prefer run fasta for day-to-day analysis. "
         "If this archive is retired, use a stored FASTA; do not silently "
         "fall back to rest.ensembl.org."
     ),

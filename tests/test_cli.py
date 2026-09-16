@@ -14,12 +14,13 @@ def test_legacy_fasta_header_metadata() -> None:
     ) == {"chrom": "4", "start": "10", "end": "20", "strand": "-"}
 
 
-def test_help_doctor_and_config(tmp_path: Path, monkeypatch) -> None:
+def test_help_check_requirements_and_config(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("BSST_HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("PATH", str(tmp_path))
     assert runner.invoke(app, ["--help"]).exit_code == 0
-    doctor = runner.invoke(app, ["doctor"])
-    assert doctor.exit_code == 0
-    assert "RNAup" in doctor.stdout
+    checked = runner.invoke(app, ["check_requirements"])
+    assert checked.exit_code == 1
+    assert "RNAup" in checked.stdout
     listed = runner.invoke(app, ["resources"])
     assert listed.exit_code == 0
     assert "GENCODE" in listed.stdout
@@ -29,7 +30,19 @@ def test_help_doctor_and_config(tmp_path: Path, monkeypatch) -> None:
     assert "runs_dir" in shown.stdout
 
 
-def test_small_select_with_mock_rnaup(tmp_path: Path, monkeypatch) -> None:
+def test_check_requirements_ok_with_required_binaries(tmp_path: Path, monkeypatch) -> None:
+    for name in ("RNAup", "blastn", "makeblastdb"):
+        exe = tmp_path / name
+        exe.write_text("#!/bin/sh\nexit 0\n")
+        exe.chmod(0o755)
+    monkeypatch.setenv("BSST_HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("PATH", str(tmp_path))
+    checked = runner.invoke(app, ["check_requirements"])
+    assert checked.exit_code == 0, checked.output
+    assert "missing/optional" in checked.stdout
+
+
+def test_small_run_with_mock_rnaup(tmp_path: Path, monkeypatch) -> None:
     executable = tmp_path / "RNAup"
     executable.write_text(
         "#!/bin/sh\n"
@@ -44,7 +57,7 @@ def test_small_select_with_mock_rnaup(tmp_path: Path, monkeypatch) -> None:
     result = runner.invoke(
         app,
         [
-            "select", "fasta", str(fasta), "--runs-dir", str(runs),
+            "run", "fasta", str(fasta), "--runs-dir", str(runs),
             "--skip-blast", "--skip-variants", "--window-size", "40",
         ],
     )

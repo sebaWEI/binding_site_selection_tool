@@ -6,18 +6,16 @@ usually designed to overlap the translation initiation region; 3′UTR targeting
 is not established as an equivalent rule.
 
 RNAup is a thermodynamic model, not a cellular efficacy predictor. It omits
-many relevant effects including protein occupancy, compartmentalization,
-isoform abundance, RNA modification, degradation, and construct context.
-BLAST and population-variant filters are database- and parameter-dependent.
+protein occupancy, compartmentalization, isoform abundance, RNA modification,
+degradation, and construct context. BLAST and population-variant filters are
+database- and parameter-dependent.
+
 The BLAST subject is GENCODE 45 (Ensembl 111, GRCh38.p14, all CHR
 transcripts). The variant VCF is NCBI dbSNP b151 on GRCh38.p7.
-`bsst select gene` uses the Ensembl 111 REST archive, not live Ensembl.
+`bsst run gene` uses the Ensembl 111 REST archive, not live Ensembl.
 Canonical-transcript selection can omit biologically relevant isoforms.
 Prefer a stored FASTA for analyses that must remain reproducible after the
-archive is retired. The bundled LETM1 and NSD2 FASTAs match Ensembl 111
-`lookup/symbol` canonical 3′UTRs and `sequence/region` for those BED
-intervals; minus-strand LETM1 windows equal the reverse complement of the
-plus-strand genome slice.
+archive is retired.
 
 Ranking must be followed by orthogonal review and wet-lab testing with
 appropriate negative controls, dose response, RNA/protein measurements, and

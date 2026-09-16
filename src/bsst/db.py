@@ -209,9 +209,18 @@ def ensure_tabix(vcf: Path) -> Path | None:
     return index if index.is_file() else None
 
 
-def _row(name: str, value: Any, ok: bool, *, missing_ok: bool = True) -> dict[str, str]:
+def _row(
+    name: str,
+    value: Any,
+    ok: bool,
+    *,
+    missing_ok: bool = True,
+    required: bool = False,
+) -> dict[str, str]:
     if ok:
         status = "ok"
+    elif required:
+        status = "missing"
     elif missing_ok:
         status = "missing/optional"
     else:
@@ -228,9 +237,24 @@ def tool_report() -> list[dict[str, str]]:
     vcf_path = Path(variant_vcf) if variant_vcf else None
     fasta = bundled_gencode_fasta()
     rows = [
-        _row("RNAup", resolve_executable("RNAup"), bool(resolve_executable("RNAup"))),
-        _row("blastn", resolve_executable("blastn"), bool(resolve_executable("blastn"))),
-        _row("makeblastdb", shutil.which("makeblastdb"), bool(shutil.which("makeblastdb"))),
+        _row(
+            "RNAup",
+            resolve_executable("RNAup"),
+            bool(resolve_executable("RNAup")),
+            required=True,
+        ),
+        _row(
+            "blastn",
+            resolve_executable("blastn"),
+            bool(resolve_executable("blastn")),
+            required=True,
+        ),
+        _row(
+            "makeblastdb",
+            shutil.which("makeblastdb"),
+            bool(shutil.which("makeblastdb")),
+            required=True,
+        ),
         _row("tabix", shutil.which("tabix"), bool(shutil.which("tabix"))),
     ]
     blast_ok = bool(blast_db and blast_db_is_present(blast_db))

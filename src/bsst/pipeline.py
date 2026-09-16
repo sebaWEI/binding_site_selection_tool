@@ -545,7 +545,7 @@ def select(
         logger.info("stage=rnaup")
         if active.any() and not resolve_executable("RNAup", rnaup_exe):
             raise RuntimeError(
-                "RNAup is required for scoring but was not found; run `bsst doctor`."
+                "RNAup is required for scoring but was not found; run `bsst check_requirements`."
             )
         for idx, row in all_candidates.loc[active].iterrows():
             result = run_rnaup_candidate(target, row, options, logger, rnaup_exe)

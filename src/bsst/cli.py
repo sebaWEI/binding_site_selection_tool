@@ -24,12 +24,12 @@ from .resources import (
 
 app = typer.Typer(help="bsst: Binding Site Selection Tool for Hepha antisense domains. Primary input is FASTA.")
 db_app = typer.Typer(help="Manage local database configuration.")
-select_app = typer.Typer(
-    help="Select sites. Prefer `select fasta`; `select gene` fetches Ensembl 111 as a convenience."
+run_app = typer.Typer(
+    help="Run site ranking. Prefer `run fasta`; `run gene` fetches Ensembl 111 as a convenience."
 )
 config_app = typer.Typer(help="Inspect configuration.")
 app.add_typer(db_app, name="db")
-app.add_typer(select_app, name="select")
+app.add_typer(run_app, name="run")
 app.add_typer(config_app, name="config")
 console = Console()
 
@@ -103,18 +103,29 @@ def db_init(
     console.print("BLAST+ and RNAup are external system tools and are not installed by uv.")
 
 
-@app.command()
-def doctor() -> None:
-    """Report tools and configured data; missing optional resources are non-fatal."""
+@app.command("check_requirements")
+def check_requirements() -> None:
+    """Report tools and configured data. Exits 1 if a required binary is missing or a pinned file does not match."""
     report = tool_report()
     table = Table("Resource", "Value", "Status")
     for row in report:
         table.add_row(row["resource"], row["value"], row["status"])
     console.print(table)
-    console.print("FASTA input is the primary, reproducible interface.")
-    console.print("`bsst select gene` is a convenience fetcher against Ensembl REST archive 111.")
-    console.print("Use --skip-blast and/or --skip-variants when external data is unavailable.")
-    console.print("Pinned names and URLs: `bsst resources`.")
+    console.print("A full local run needs RNAup, blastn, makeblastdb, blast_db, and variant_vcf all `ok`.")
+    console.print("tabix is optional but recommended for large VCF region queries.")
+    console.print("Use --skip-blast and/or --skip-variants only when you intentionally omit those stages.")
+    failed = [row for row in report if row["status"] in {"missing", "mismatch"}]
+    if failed:
+        names = ", ".join(row["resource"] for row in failed)
+        console.print(f"[red]Requirements incomplete: {names}[/red]")
+        raise typer.Exit(code=1)
+    optional_missing = [row["resource"] for row in report if row["status"] == "missing/optional"]
+    if optional_missing:
+        console.print(
+            "[yellow]Optional items still missing: "
+            + ", ".join(optional_missing)
+            + ". `bsst run` will skip those stages unless you finish `db init`.[/yellow]"
+        )
 
 
 @app.command("resources")
@@ -138,7 +149,7 @@ def resources_cmd() -> None:
             str(item.get("url") or item.get("base_url") or item.get("path") or item.get("manual") or item.get("docs_url") or ""),
         )
     console.print(table)
-    console.print("Verification steps: docs/resources.md, docs/variants.md, docs/transcriptome.md")
+    console.print("Verification steps: docs/resources.md")
 
 
 @config_app.command("show")
@@ -193,8 +204,8 @@ def _run(
     console.print(f"Run completed: {run_dir}")
 
 
-@select_app.command("gene")
-def select_gene(
+@run_app.command("gene")
+def run_gene(
     gene: str = typer.Argument(..., help="Gene symbol looked up on Ensembl REST archive 111."),
     runs_dir: Path | None = typer.Option(None, help="Override configured runs directory."),
     species: str = typer.Option("homo_sapiens"),
@@ -223,8 +234,8 @@ def select_gene(
     )
 
 
-@select_app.command("fasta")
-def select_fasta(
+@run_app.command("fasta")
+def run_fasta(
     fasta: Path = typer.Argument(..., exists=True, readable=True),
     runs_dir: Path | None = typer.Option(None, help="Override configured runs directory."),
     chrom: str | None = typer.Option(None),
