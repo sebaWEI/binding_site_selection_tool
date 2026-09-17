@@ -89,8 +89,19 @@ Release notes: [https://www.gencodegenes.org/human/release_45.html](https://www.
 
 Local FASTA: `data/gencode.v45.transcripts.fa` (~454 MB). BLAST prefix:
 `data/gencode_v45_transcripts_db`. Comprehensive CHR transcripts including
-MT, **not** `pc_transcripts`. Queries are DNA (`T`, never `U`). Do not
-pass `-parse_seqids` to `makeblastdb`.
+MT, **not** `pc_transcripts`. Queries are DNA (`T`, never `U`).
+
+`bsst db init --gencode-v45-transcripts` builds the library. Equivalent
+manual command (do **not** pass `-parse_seqids`; GENCODE headers contain
+`|`):
+
+```bash
+makeblastdb \
+  -in data/gencode.v45.transcripts.fa \
+  -dbtype nucl \
+  -out data/gencode_v45_transcripts_db \
+  -title "GENCODE v45 transcripts CHR GRCh38.p14"
+```
 
 ```bash
 grep -c '^>' data/gencode.v45.transcripts.fa
