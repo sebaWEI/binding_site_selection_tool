@@ -171,27 +171,26 @@ activated, or Homebrew not on `PATH`). Do not continue to step 5:
 ### 5. Download the two databases and build BLAST
 
 Type **only this** (still in the repo folder). Do not download the FASTA
-or VCF in a browser, and do not run `makeblastdb` yourself unless the
-recovery note at the end of this step applies.
+or VCF in a browser. `db init` already runs `makeblastdb`; you do not
+type that command.
 
 ```bash
 uv run bsst resources
 uv run bsst db init --dbsnp-common-all --gencode-v45-transcripts
 ```
 
-That single `db init` command, in order:
+That single command, in order:
 
 1. Downloads NCBI dbSNP b151 `common_all` (~1.5 GB) to
-  `data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz`.
+   `data/dbSNP_b151_GRCh38p7_common_all_20180418.vcf.gz`.
 2. If `tabix` is on `PATH`, builds `…vcf.gz.tbi` so region queries are
-  fast.
+   fast.
 3. Downloads GENCODE 45 CHR transcripts
-  (`gencode.v45.transcripts.fa.gz`) into `data/`.
+   (`gencode.v45.transcripts.fa.gz`) into `data/`.
 4. Uncompresses them to `data/gencode.v45.transcripts.fa` (~454 MB).
-5. **Builds the BLAST nucleotide database** by running `makeblastdb`
-  for you. Output prefix: `data/gencode_v45_transcripts_db`.
+5. Builds the BLAST nucleotide database (`data/gencode_v45_transcripts_db`).
 6. Checks SHA-256 against [docs/resources.md](docs/resources.md). A
-  mismatch aborts (wrong or truncated file). Re-run with `--force` only
+   mismatch aborts (wrong or truncated file). Re-run with `--force` only
    if you intend to replace the local copies.
 
 Wait until the command returns to the prompt. Then you should have at
@@ -216,19 +215,7 @@ These rows must be `ok` (no `missing`, no `mismatch`): `RNAup`,
 `blastn`, `makeblastdb`, `blast_db`, `blast_db_identity`,
 `gencode_fasta`, `gencode_fasta_identity`, `variant_vcf`,
 `variant_vcf_identity`. After that, the example FASTA run below does not
-need the network. `run gene` still needs Ensembl 111 (step 7).
-
-**Recovery — FASTA is present but BLAST files are not.** Only then type
-this yourself. Do **not** add `-parse_seqids` (GENCODE headers contain
-`|`):
-
-```bash
-makeblastdb \
-  -in data/gencode.v45.transcripts.fa \
-  -dbtype nucl \
-  -out data/gencode_v45_transcripts_db \
-  -title "GENCODE v45 transcripts CHR GRCh38.p14"
-```
+need the network. `run gene` still needs Ensembl 111.
 
 
 
